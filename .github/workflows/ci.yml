@@ -1,0 +1,77 @@
+name: NexusAPI - CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./nexus-api
+    
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x]
+
+    env:
+      DATABASE_TYPE: postgres
+      DATABASE_HOST: localhost
+      DATABASE_PORT: 5432
+      DATABASE_USERNAME: user
+      DATABASE_PASSWORD: password
+      DATABASE_DATABASE: mydatabase
+      DATABASE_AUTO_LOAD_ENTITIES: 1
+      DATABASE_SYNCHRONIZE: 1
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      JWT_TOKEN_AUDIENCE: ${{ secrets.JWT_TOKEN_AUDIENCE }}
+      JWT_TOKEN_ISSUER: ${{ secrets.JWT_TOKEN_ISSUER }}
+      JWT_TTL: ${{ secrets.JWT_TTL }}
+      JWT_REFRESH_TTL: ${{ secrets.JWT_REFRESH_TTL }}
+      PORT: 3000
+
+    services:
+      # Database config
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: ${{ env.DATABASE_USERNAME }}
+          POSTGRES_PASSWORD: ${{ env.DATABASE_PASSWORD }}
+          POSTGRES_DB: ${{ env.DATABASE_DATABASE }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -d mydatabase -U user"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    #Step 1 - Job Configuration
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    # Step 2 - Install Dependencies
+    - name: Install Dependencies
+      run: npm ci
+
+    # Step 3 - Wait for PostgreSQL
+    - name: Wait for PostgreSQL
+      run: |
+        echo "Wait for database..."
+        sleep 10
+
+    # Step 4 - Unit Tests
+    - name: Run all tests
+      run: |
+        npm run test
+        npm run test:e2e
