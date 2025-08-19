@@ -33,6 +33,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
       }),
     }),
     TypeOrmModule.forRoot({
+      url: process.env.DATABASE_URL,
       type: process.env.DATABASE_TYPE as 'postgres',
       host: process.env.DATABASE_HOST,
       port: Number(process.env.DATABASE_PORT),

@@ -1,0 +1,46 @@
+name: nexus-api
+
+services:
+  backend:
+    build: ./nexus-api
+    container_name: backend_api
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_TYPE: ${DATABASE_TYPE}
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_DATABASE: ${DATABASE_DATABASE}
+      DATABASE_AUTO_LOAD_ENTITIES: ${DATABASE_AUTO_LOAD_ENTITIES}
+      DATABASE_SYNCHRONIZE: ${DATABASE_SYNCHRONIZE}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_TOKEN_AUDIENCE: ${JWT_TOKEN_AUDIENCE}
+      JWT_TOKEN_ISSUER: ${JWT_TOKEN_ISSUER}
+      JWT_TTL: ${JWT_TTL}
+      JWT_REFRESH_TTL: ${JWT_REFRESH_TTL}
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${PORT}
+      ORIGIN: ${ORIGIN}
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_DATABASE}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+    driver: local
