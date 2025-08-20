@@ -103,7 +103,7 @@ export class PersonService {
 
     if (!person) throw new NotFoundException('Pessoa não encontrada.');
     if (person.id !== tokenPayload.sub)
-      throw new ForbiddenException('Você não tem autorização para atualizar.');
+      throw new ForbiddenException('Você não tem autorização para atualizar essa pessoa.');
 
     await this.personRepository.save(person);
     return person;
@@ -118,7 +118,7 @@ export class PersonService {
 
     if (!person) throw new NotFoundException('Pessoa não encontrada.');
     if (person.id !== tokenPayload.sub)
-      throw new ForbiddenException('Você não tem autorização para atualizar.');
+      throw new ForbiddenException('Você não tem autorização para deletar essa pessoa.');
 
     await this.personRepository.delete(person.id);
     return person;
@@ -140,7 +140,10 @@ export class PersonService {
       .toLowerCase()
       .substring(1);
     const fileName = `${tokenPayload.sub}.${fileExtension}`;
-    const fileFullPath = path.resolve(process.cwd(), 'pictures', fileName);
+    const pictureDir = path.resolve(process.cwd(), 'pictures');
+    const fileFullPath = path.join(pictureDir, fileName);
+
+    await fs.mkdir(pictureDir, { recursive: true });
 
     await fs.writeFile(fileFullPath, file.buffer);
 
