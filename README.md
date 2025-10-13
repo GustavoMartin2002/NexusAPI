@@ -305,5 +305,3 @@ Obs: `DATABASE_SYNCHRONIZE=1` somente em ambiente de testes.
 </br>
 
 **Agora sua NexusAPI está pronta para uso, com testes e CI/CD automatizados!** ⚡
-
-[NexusAPI](https://nexusapi-apuw.onrender.com/docs)
